@@ -1,131 +1,160 @@
 package com.example.claculatorui
 
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.textview.MaterialTextView
+import android.view.View
+import android.widget.Button
+import android.widget.TextView
 
-class MainActivity : AppCompatActivity() {
-
-    private var operand1 = ""
-    private var operand2 = ""
-    private var operator = ""
-
-    override fun onCreate(savedInstanceState: Bundle?) {
+class MainActivity : AppCompatActivity(), View.OnClickListener
+{
+    private lateinit var resultText: TextView
+    var expression = StringBuilder()
+    override fun onCreate(savedInstanceState: Bundle?)
+    {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        val resultView: MaterialTextView = findViewById(R.id.result)
-
-        // Thiết lập sự kiện click cho các nút số
-        findViewById<MaterialButton>(R.id.button_0).setOnClickListener { appendToResult("0") }
-        findViewById<MaterialButton>(R.id.button_1).setOnClickListener { appendToResult("1") }
-        findViewById<MaterialButton>(R.id.button_2).setOnClickListener { appendToResult("2") }
-        findViewById<MaterialButton>(R.id.button_3).setOnClickListener { appendToResult("3") }
-        findViewById<MaterialButton>(R.id.button_4).setOnClickListener { appendToResult("4") }
-        findViewById<MaterialButton>(R.id.button_5).setOnClickListener { appendToResult("5") }
-        findViewById<MaterialButton>(R.id.button_6).setOnClickListener { appendToResult("6") }
-        findViewById<MaterialButton>(R.id.button_7).setOnClickListener { appendToResult("7") }
-        findViewById<MaterialButton>(R.id.button_8).setOnClickListener { appendToResult("8") }
-        findViewById<MaterialButton>(R.id.button_9).setOnClickListener { appendToResult("9") }
-
-        // Thiết lập sự kiện click cho các nút phép toán
-        findViewById<MaterialButton>(R.id.button_Plus).setOnClickListener { setOperator("+") }
-        findViewById<MaterialButton>(R.id.button_Minus).setOnClickListener { setOperator("-") }
-        findViewById<MaterialButton>(R.id.button_Multiply).setOnClickListener { setOperator("*") }
-        findViewById<MaterialButton>(R.id.button_Divide).setOnClickListener { setOperator("/") }
-
-        // Thiết lập sự kiện click cho các nút chức năng
-        findViewById<MaterialButton>(R.id.button_Equal).setOnClickListener { calculateResult(resultView) }
-        findViewById<MaterialButton>(R.id.button_C).setOnClickListener { clear() }
-        findViewById<MaterialButton>(R.id.button_CE).setOnClickListener { clearEntry() }
-        findViewById<MaterialButton>(R.id.button_BS).setOnClickListener { backspace() }
+        resultText = findViewById(R.id.result)
+        findViewById<Button>(R.id.button_0).setOnClickListener(this);
+        findViewById<Button>(R.id.button_1).setOnClickListener(this);
+        findViewById<Button>(R.id.button_2).setOnClickListener(this);
+        findViewById<Button>(R.id.button_3).setOnClickListener(this);
+        findViewById<Button>(R.id.button_4).setOnClickListener(this);
+        findViewById<Button>(R.id.button_5).setOnClickListener(this);
+        findViewById<Button>(R.id.button_6).setOnClickListener(this);
+        findViewById<Button>(R.id.button_7).setOnClickListener(this);
+        findViewById<Button>(R.id.button_8).setOnClickListener(this);
+        findViewById<Button>(R.id.button_9).setOnClickListener(this);
+        findViewById<Button>(R.id.button_CE).setOnClickListener(this);
+        findViewById<Button>(R.id.button_C).setOnClickListener(this);
+        findViewById<Button>(R.id.button_BS).setOnClickListener(this);
+        findViewById<Button>(R.id.button_Divide).setOnClickListener(this);
+        findViewById<Button>(R.id.button_Multiply).setOnClickListener(this);
+        findViewById<Button>(R.id.button_Minus).setOnClickListener(this);
+        findViewById<Button>(R.id.button_Plus).setOnClickListener(this);
+        findViewById<Button>(R.id.button_Equal).setOnClickListener(this);
+        findViewById<Button>(R.id.button_Dot).setOnClickListener(this);
+        findViewById<Button>(R.id.button_PDM).setOnClickListener(this);
     }
-
-    private fun appendToResult(value: String) {
-        if (operator.isEmpty()) {
-            operand1 += value
-            updateResult(operand1)
-        } else {
-            operand2 += value
-            updateResult(operand2)
+    override fun onClick(p0: View?){
+        val id = p0?.id
+        when (id) {
+            R.id.button_0 -> addDigit(0)
+            R.id.button_1 -> addDigit(1)
+            R.id.button_2 -> addDigit(2)
+            R.id.button_3 -> addDigit(3)
+            R.id.button_4 -> addDigit(4)
+            R.id.button_5 -> addDigit(5)
+            R.id.button_6 -> addDigit(6)
+            R.id.button_7 -> addDigit(7)
+            R.id.button_8 -> addDigit(8)
+            R.id.button_9 -> addDigit(9)
+            R.id.button_Plus -> addOperator("+")
+            R.id.button_Minus -> addOperator("-")
+            R.id.button_Multiply -> addOperator("*")
+            R.id.button_Divide -> addOperator("/")
+            R.id.button_CE -> clearEntry()
+            R.id.button_Equal -> calculateResult()
+            R.id.button_PDM -> toggleSign()
+            R.id.button_BS -> backspace()
+            R.id.button_C -> clearExpression()
         }
     }
-
-    private fun setOperator(op: String) {
-        if (operand1.isNotEmpty() && operand2.isEmpty()) {
-            operator = op
-        }
-    }
-
-    private fun calculateResult(resultView: MaterialTextView) {
-        if (operand1.isNotEmpty() && operand2.isNotEmpty()) {
-            val result = when (operator) {
-                "+" -> operand1.toDouble() + operand2.toDouble()
-                "-" -> operand1.toDouble() - operand2.toDouble()
-                "*" -> operand1.toDouble() * operand2.toDouble()
-                "/" -> {
-                    if (operand2 == "0") {
-                        resultView.text = "Error"
-                        return
-                    } else {
-                        operand1.toDouble() / operand2.toDouble()
-                    }
-                }
-                else -> 0.0
-            }
-
-            // Kiểm tra xem kết quả có phải là số nguyên không
-            val displayResult = if (result == result.toInt().toDouble()) {
-                result.toInt().toString()  // Hiển thị dưới dạng số nguyên
-            } else {
-                result.toString()           // Hiển thị dưới dạng số thập phân
-            }
-
-            resultView.text = displayResult
-            resetOperands(displayResult)
-        }
-    }
-
-    private fun updateResult(value: String) {
-        findViewById<MaterialTextView>(R.id.result).text = value
-    }
-
-    private fun resetOperands(result: String) {
-        operand1 = result
-        operand2 = ""
-        operator = ""
-    }
-
-    private fun clear() {
-        operand1 = ""
-        operand2 = ""
-        operator = ""
-        updateResult("0")
-    }
-
-    private fun clearEntry() {
-        if (operand2.isNotEmpty()) {
-            operand2 = ""
-        } else if (operator.isNotEmpty()) {
-            operator = ""
-        } else if (operand1.isNotEmpty()) {
-            operand1 = ""
-        }
-        updateResult("0")
-    }
-
     private fun backspace() {
-        if (operand2.isNotEmpty()) {
-            operand2 = operand2.dropLast(1)
-            updateResult(operand2)
-        } else if (operator.isNotEmpty()) {
-            operator = ""
-        } else if (operand1.isNotEmpty()) {
-            operand1 = operand1.dropLast(1)
-            updateResult(operand1)
+        if (expression.isNotEmpty()) {
+            expression.deleteCharAt(expression.length - 1)
+            resultText.text = expression.toString()
         }
+    }
+    private fun toggleSign() {
+        if (expression.isNotEmpty()) {
+            if (expression.last().isDigit()) {
+                val currentNumber = expression.split(" ").last()
+                val newNumber = if (currentNumber.startsWith("-")) {
+                    currentNumber.substring(1)
+                } else {
+                    "-$currentNumber"
+                }
+
+                expression.delete(expression.length - currentNumber.length, expression.length)
+                expression.append(newNumber)
+                resultText.text = expression.toString()
+            }
+        }
+    }
+    private fun addDigit(digit: Int) {
+        expression.append(digit)
+        resultText.text = expression.toString()
+    }
+    private fun addOperator(operator: String) {
+        if (expression.isNotEmpty() && expression.last().isDigit()) {
+            expression.append(" $operator ")
+            resultText.text = expression.toString()
+        }
+    }
+    private fun clearEntry() {
+        if (expression.isNotEmpty()) {
+            val lastEntry = expression.split(" ").last()
+            expression.delete(expression.length - lastEntry.length, expression.length)
+            resultText.text = expression.toString()
+        }
+    }
+    private fun  clearExpression() {
+        expression.clear()
+        resultText.text = "0"
+    }
+    private fun calculateResult() {
+        if (expression.isEmpty()) {
+            resultText.text = "0"
+            return
+        }
+
+        try {
+            val result = evaluateExpression(expression.toString())
+            expression.clear()
+            resultText.text = result.toString()
+        } catch (e: Exception) {
+            resultText.text = "0"
+        }
+    }
+
+    private fun evaluateExpression(expr: String): Int {
+        val tokens = expr.split(" ").toMutableList()
+        var i = 0
+        while (i < tokens.size) {
+            if (tokens[i] == "*" || tokens[i] == "/") {
+                val left = tokens[i - 1].toInt()
+                val right = tokens[i + 1].toInt()
+                val result = if (tokens[i] == "*") {
+                    left * right
+                } else {
+                    if (right == 0) throw ArithmeticException("Cannot divide by zero")
+                    left / right
+                }
+                tokens[i - 1] = result.toString()
+                tokens.removeAt(i)
+                tokens.removeAt(i)
+                i--
+            }
+            i++
+        }
+        i = 0
+        while (i < tokens.size) {
+            if (tokens[i] == "+" || tokens[i] == "-") {
+                val left = tokens[i - 1].toInt()
+                val right = tokens[i + 1].toInt()
+                val result = if (tokens[i] == "+") {
+                    left + right
+                } else {
+                    left - right
+                }
+                tokens[i - 1] = result.toString()
+                tokens.removeAt(i)
+                tokens.removeAt(i)
+                i--
+            }
+            i++
+        }
+        return tokens[0].toInt()
     }
 }
-
