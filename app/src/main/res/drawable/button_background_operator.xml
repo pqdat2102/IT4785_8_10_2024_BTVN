@@ -1,0 +1,6 @@
+<!-- res/drawable/button_background_operator.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#E0E0E0"/> <!-- Màu xám nhạt cho nút dấu -->
+    <corners android:radius="0dp"/> <!-- Không bo góc để tạo hình vuông -->
+    <stroke android:width="1dp" android:color="#B0B0B0"/> <!-- Đường viền -->
+</shape>
